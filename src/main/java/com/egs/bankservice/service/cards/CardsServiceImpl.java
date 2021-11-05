@@ -2,6 +2,8 @@ package com.egs.bankservice.service.cards;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import com.egs.bankservice.util.RandomGenerator;
 @Transactional(readOnly = true)
 public class CardsServiceImpl implements CardsService {
 
+    private final Logger logger = LoggerFactory.getLogger(CardsServiceImpl.class);
+
     @Value("${card.number.length}")
     private int cardNumberLength;
 
@@ -42,6 +46,7 @@ public class CardsServiceImpl implements CardsService {
     public AddCardResponse addCard(AddCardRequest addCardRequest) {
         Optional<UserEntity> optionalUserEntity = usersRepository.getUserEntityByPersonalId(addCardRequest.getUserPersonalId());
         if (!optionalUserEntity.isPresent()) {
+            logger.warn(String.format("User whit personalId %s not exists", addCardRequest.getUserPersonalId()));
             throw new BankException(String.format("User whit personalId %s not exists", addCardRequest.getUserPersonalId()));
         }
 
@@ -67,6 +72,7 @@ public class CardsServiceImpl implements CardsService {
         if (optionalCardEntity.isPresent()) {
             return getCardResponse(optionalCardEntity.get());
         } else {
+            logger.warn("Can't find card By id: " + id);
             throw new BankException("Can't find card By id: " + id);
         }
     }
@@ -77,6 +83,7 @@ public class CardsServiceImpl implements CardsService {
         if (optionalCardEntity.isPresent()) {
             return getCardResponse(optionalCardEntity.get());
         } else {
+            logger.warn("Can't find card By number: " + number);
             throw new BankException("Can't find card By number: " + number);
         }
     }
@@ -92,6 +99,7 @@ public class CardsServiceImpl implements CardsService {
     public void setAuthMethodByCardNumber(SetAuthMethodRequest setAuthMethodRequest) {
         Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(setAuthMethodRequest.getCardNumber());
         if (!optionalCardEntity.isPresent()) {
+            logger.warn("Can't find card By number: " + setAuthMethodRequest.getCardNumber());
             throw new BankException("Can't find card By number: " + setAuthMethodRequest.getCardNumber());
         }
         CardAuthMethod cardAuthMethod = getCardAuthMethod(setAuthMethodRequest.getAuthMethod());
@@ -115,6 +123,7 @@ public class CardsServiceImpl implements CardsService {
         try {
             cardAuthMethod = CardAuthMethod.valueOf(authMethod);
         } catch (IllegalArgumentException ex) {
+            logger.warn("Not supported car auth method: " + authMethod);
             throw new BankException("Not supported car auth method: " + authMethod);
         }
         return cardAuthMethod;

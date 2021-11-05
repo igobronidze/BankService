@@ -2,6 +2,8 @@ package com.egs.bankservice.service.users;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ import com.egs.bankservice.repo.UsersRepository;
 @Transactional(readOnly = true)
 public class UsersServiceImpl implements UsersService {
 
+    private final Logger logger = LoggerFactory.getLogger(UsersServiceImpl.class);
+
     private final UsersRepository usersRepository;
 
     @Autowired
@@ -26,6 +30,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void addUser(UserAddRequest userAddRequest) {
         if (usersRepository.existsByPersonalId(userAddRequest.getPersonalId())) {
+            logger.warn(String.format("User with personalId %s already exists", userAddRequest.getPersonalId()));
             throw new BankException(String.format("User with personalId %s already exists", userAddRequest.getPersonalId()));
         }
         usersRepository.save(getUserEntity(userAddRequest));
@@ -38,6 +43,7 @@ public class UsersServiceImpl implements UsersService {
         if (optionalUserEntity.isPresent()) {
             return getUserResponse(optionalUserEntity.get());
         } else {
+            logger.warn("Can't find user By id: " + id);
             throw new BankException("Can't find user By id: " + id);
         }
     }
@@ -48,6 +54,7 @@ public class UsersServiceImpl implements UsersService {
         if (optionalUserEntity.isPresent()) {
             return getUserResponse(optionalUserEntity.get());
         } else {
+            logger.warn("Can't find user By personalId: " + personalId);
             throw new BankException("Can't find user By personalId: " + personalId);
         }
     }

@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import com.egs.bankservice.util.PasswordHashUtils;
 @Transactional(readOnly = true)
 public class CardAuthServiceImpl implements CardAuthService {
 
+    private final Logger logger = LoggerFactory.getLogger(CardAuthServiceImpl.class);
+
     private final CardRepository cardRepository;
 
     @Autowired
@@ -33,6 +37,7 @@ public class CardAuthServiceImpl implements CardAuthService {
     public CardAuthResponse cardAuth(CardAuthRequest cardAuthRequest) {
         Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(cardAuthRequest.getCardNumber());
         if (!optionalCardEntity.isPresent()) {
+            logger.warn("Can't find card By number: " + cardAuthRequest.getCardNumber());
             throw new BankException("Can't find card By number: " + cardAuthRequest.getCardNumber());
         }
         CardEntity card = optionalCardEntity.get();
@@ -52,10 +57,12 @@ public class CardAuthServiceImpl implements CardAuthService {
             if (failedAttempts == 2) {
                 card.getAuthInfo().setBlocked(true);
             }
+            logger.warn("Password is incorrect");
             throw new BankException("Password is incorrect");
         }
 
         if (card.getAuthInfo().isBlocked()) {
+            logger.warn("Card is blocked");
             throw new BankException("Card is blocked");
         }
 
