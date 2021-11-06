@@ -16,4 +16,10 @@ public interface CardsService {
     void deleteCard(long id);
 
     void setAuthMethodByCardNumber(SetAuthMethodRequest setAuthMethodRequest);
+
+    long checkBalance(String cardNumber);
+
+    void deposit(String cardNumber, long amount);
+
+    void withdrawal(String cardNumber, long amount);
 }

@@ -80,13 +80,7 @@ public class CardsServiceImpl implements CardsService {
 
     @Override
     public CardResponse getCardByNumber(String number) {
-        Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(number);
-        if (optionalCardEntity.isPresent()) {
-            return getCardResponse(optionalCardEntity.get());
-        } else {
-            logger.warn("Can't find card By number: " + number);
-            throw new BankException("Can't find card By number: " + number);
-        }
+        return getCardResponse(getCardByNumberIfCanFound(number));
     }
 
     @Override
@@ -102,13 +96,41 @@ public class CardsServiceImpl implements CardsService {
     @Override
     @Transactional
     public void setAuthMethodByCardNumber(SetAuthMethodRequest setAuthMethodRequest) {
-        Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(setAuthMethodRequest.getCardNumber());
-        if (!optionalCardEntity.isPresent()) {
-            logger.warn("Can't find card By number: " + setAuthMethodRequest.getCardNumber());
-            throw new BankException("Can't find card By number: " + setAuthMethodRequest.getCardNumber());
-        }
+        CardEntity card = getCardByNumberIfCanFound(setAuthMethodRequest.getCardNumber());
         CardAuthMethod cardAuthMethod = getCardAuthMethod(setAuthMethodRequest.getAuthMethod());
-        optionalCardEntity.get().setAuthMethod(cardAuthMethod);
+        card.setAuthMethod(cardAuthMethod);
+    }
+
+    @Override
+    public long checkBalance(String cardNumber) {
+        return getCardByNumberIfCanFound(cardNumber).getAmount();
+    }
+
+    @Override
+    @Transactional
+    public void deposit(String cardNumber, long amount) {
+        CardEntity card = getCardByNumberIfCanFound(cardNumber);
+        card.setAmount(card.getAmount() + amount);
+    }
+
+    @Override
+    @Transactional
+    public void withdrawal(String cardNumber, long amount) {
+        CardEntity card = getCardByNumberIfCanFound(cardNumber);
+        if (card.getAmount() < amount) {
+            logger.warn("Card amount is less then withdrawal amount");
+            throw new BankException("Card amount is less then withdrawal amount");
+        }
+        card.setAmount(card.getAmount() - amount);
+    }
+
+    private CardEntity getCardByNumberIfCanFound(String cardNumber) {
+        Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(cardNumber);
+        if (!optionalCardEntity.isPresent()) {
+            logger.warn("Can't find card By number: " + cardNumber);
+            throw new BankException("Can't find card By number: " + cardNumber);
+        }
+        return optionalCardEntity.get();
     }
 
     private CardResponse getCardResponse(CardEntity cardEntity) {

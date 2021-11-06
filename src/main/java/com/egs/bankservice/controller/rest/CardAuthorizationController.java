@@ -1,5 +1,7 @@
 package com.egs.bankservice.controller.rest;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,8 @@ import com.egs.bankservice.service.auth.CardAuthServiceImpl;
 @RequestMapping("api/cardAuth")
 public class CardAuthorizationController {
 
+    public static final String HTTP_SESSION_CARD_NUMBER_KEY = "cardNumber";
+
     private final CardAuthService cardAuthService;
 
     @Autowired
@@ -22,8 +26,15 @@ public class CardAuthorizationController {
         this.cardAuthService = cardAuthService;
     }
 
-    @PostMapping
-    public CardAuthResponse cardAuth(@RequestBody CardAuthRequest cardAuthRequest) {
-        return cardAuthService.cardAuth(cardAuthRequest);
+    @PostMapping("auth")
+    public CardAuthResponse cardAuth(HttpSession httpSession, @RequestBody CardAuthRequest cardAuthRequest) {
+        CardAuthResponse cardAuthResponse = cardAuthService.cardAuth(cardAuthRequest);
+        httpSession.setAttribute(HTTP_SESSION_CARD_NUMBER_KEY, cardAuthResponse.getCardNumber());
+        return cardAuthResponse;
+    }
+
+    @PostMapping("closeSession")
+    public void closeSession(HttpSession httpSession) {
+        httpSession.invalidate();
     }
 }
