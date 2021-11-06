@@ -46,21 +46,22 @@ public class CardsServiceImpl implements CardsService {
     public AddCardResponse addCard(AddCardRequest addCardRequest) {
         Optional<UserEntity> optionalUserEntity = usersRepository.getUserEntityByPersonalId(addCardRequest.getUserPersonalId());
         if (!optionalUserEntity.isPresent()) {
-            logger.warn(String.format("User whit personalId %s not exists", addCardRequest.getUserPersonalId()));
-            throw new BankException(String.format("User whit personalId %s not exists", addCardRequest.getUserPersonalId()));
+            logger.warn(String.format("User whit personalId %s doesn't exists", addCardRequest.getUserPersonalId()));
+            throw new BankException(String.format("User whit personalId %s doesn't exists", addCardRequest.getUserPersonalId()));
         }
 
         CardEntity cardEntity = new CardEntity();
         cardEntity.setAuthMethod(getCardAuthMethod(addCardRequest.getAuthMethod()));
-        cardEntity.setFingerprint(PasswordHashUtils.getSha1EncodedString(addCardRequest.getFingerprint()));
+        cardEntity.setFingerprint(PasswordHashUtils.getMD5PasswordHash(addCardRequest.getFingerprint()));
         cardEntity.setUser(optionalUserEntity.get());
-        cardEntity.setPin(RandomGenerator.getRandomPin());
-        String pin = RandomGenerator.getRandomAlphanumericString(cardNumberLength);
-        cardEntity.setCardNumber(PasswordHashUtils.getSha1EncodedString(pin));
+        String pin = RandomGenerator.getRandomPin();
+        cardEntity.setPin(PasswordHashUtils.getMD5PasswordHash(pin));
+        cardEntity.setCardNumber(RandomGenerator.getRandomAlphanumericString(cardNumberLength));
 
         cardRepository.save(cardEntity);
 
         AddCardResponse response = new AddCardResponse();
+        response.setId(cardEntity.getId());
         response.setCardNumber(cardEntity.getCardNumber());
         response.setPin(pin);
         return response;
@@ -91,6 +92,10 @@ public class CardsServiceImpl implements CardsService {
     @Override
     @Transactional
     public void deleteCard(long id) {
+        if (!cardRepository.existsById(id)) {
+            logger.warn("There is no card with id: " + id);
+            throw new BankException("There is no card with id: " + id);
+        }
         cardRepository.deleteById(id);
     }
 
@@ -111,8 +116,6 @@ public class CardsServiceImpl implements CardsService {
         cardResponse.setId(cardEntity.getId());
         cardResponse.setCardNumber(cardEntity.getCardNumber());
         cardResponse.setAuthMethod(cardEntity.getAuthMethod().name());
-        cardResponse.setPin(cardEntity.getPin());
-        cardResponse.setFingerprint(cardEntity.getFingerprint());
         cardResponse.setUserPersonalId(cardEntity.getUser().getPersonalId());
         cardResponse.setAmount(cardEntity.getAmount());
         return cardResponse;
@@ -123,8 +126,8 @@ public class CardsServiceImpl implements CardsService {
         try {
             cardAuthMethod = CardAuthMethod.valueOf(authMethod);
         } catch (IllegalArgumentException ex) {
-            logger.warn("Not supported car auth method: " + authMethod);
-            throw new BankException("Not supported car auth method: " + authMethod);
+            logger.warn("Not supported card auth method: " + authMethod);
+            throw new BankException("Not supported card auth method: " + authMethod);
         }
         return cardAuthMethod;
     }

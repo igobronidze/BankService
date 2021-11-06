@@ -28,12 +28,14 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public void addUser(UserAddRequest userAddRequest) {
+    @Transactional
+    public long addUser(UserAddRequest userAddRequest) {
         if (usersRepository.existsByPersonalId(userAddRequest.getPersonalId())) {
             logger.warn(String.format("User with personalId %s already exists", userAddRequest.getPersonalId()));
             throw new BankException(String.format("User with personalId %s already exists", userAddRequest.getPersonalId()));
         }
-        usersRepository.save(getUserEntity(userAddRequest));
+        UserEntity user = usersRepository.save(getUserEntity(userAddRequest));
+        return user.getId();
     }
 
     @Override
@@ -62,6 +64,10 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public void deleteUser(long id) {
+        if (!usersRepository.existsById(id)) {
+            logger.warn("There is no user with id: " + id);
+            throw new BankException("There is no user with id: " + id);
+        }
         usersRepository.deleteById(id);
     }
 
@@ -71,7 +77,6 @@ public class UsersServiceImpl implements UsersService {
         userResponse.setFirstName(user.getFirstName());
         userResponse.setLastName(user.getLastName());
         userResponse.setPersonalId(user.getPersonalId());
-        userResponse.setEmail(user.getEmail());
         return userResponse;
     }
 
@@ -80,7 +85,6 @@ public class UsersServiceImpl implements UsersService {
         user.setFirstName(userAddRequest.getFirstName());
         user.setLastName(userAddRequest.getLastName());
         user.setPersonalId(userAddRequest.getPersonalId());
-        user.setEmail(userAddRequest.getEmail());
         return user;
     }
 }

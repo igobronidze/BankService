@@ -1,7 +1,5 @@
 package com.egs.bankservice.entity.card;
 
-import java.time.LocalDate;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -18,7 +16,4 @@ public class CardAuthInfo {
 
     @Column(name = "failed_attempts", nullable = false)
     private int failedAttempts;
-
-    @Column(name = "last_auth_attempt_date")
-    private LocalDate lastAuthAttemptDate;
 }

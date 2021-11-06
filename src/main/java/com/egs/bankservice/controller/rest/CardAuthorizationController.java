@@ -2,6 +2,7 @@ package com.egs.bankservice.controller.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,7 @@ public class CardAuthorizationController {
     }
 
     @PostMapping
-    public CardAuthResponse cardAuth(CardAuthRequest cardAuthRequest) {
+    public CardAuthResponse cardAuth(@RequestBody CardAuthRequest cardAuthRequest) {
         return cardAuthService.cardAuth(cardAuthRequest);
     }
 }

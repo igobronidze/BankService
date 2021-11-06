@@ -5,7 +5,7 @@ import com.egs.bankservice.controller.model.user.UserResponse;
 
 public interface UsersService {
 
-    void addUser(UserAddRequest userAddRequest);
+    long addUser(UserAddRequest userAddRequest);
 
     UserResponse getUserById(long id);
 

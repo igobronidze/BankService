@@ -35,9 +35,6 @@ public class UserEntity {
     @Column(length = 20, nullable = false, unique = true)
     private String personalId;
 
-    @Column(length = 50)
-    private String email;
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CardEntity> cards = new ArrayList<>();
 }

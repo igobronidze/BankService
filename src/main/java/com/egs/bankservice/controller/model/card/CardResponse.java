@@ -13,10 +13,6 @@ public class CardResponse {
 
     private String authMethod;
 
-    private String pin;
-
-    private String fingerprint;
-
     private String userPersonalId;
 
     private long amount;

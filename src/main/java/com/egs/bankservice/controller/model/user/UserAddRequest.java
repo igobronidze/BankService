@@ -17,6 +17,4 @@ public class UserAddRequest {
 
     @JsonProperty(required = true)
     private String personalId;
-
-    private String email;
 }

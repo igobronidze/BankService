@@ -1,6 +1,5 @@
 package com.egs.bankservice.service.auth;
 
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,9 +26,12 @@ public class CardAuthServiceImpl implements CardAuthService {
 
     private final CardRepository cardRepository;
 
+    private final CardAuthInfoService cardAuthInfoService;
+
     @Autowired
-    public CardAuthServiceImpl(CardRepository cardRepository) {
+    public CardAuthServiceImpl(CardRepository cardRepository, CardAuthInfoServiceImpl cardAuthInfoService) {
         this.cardRepository = cardRepository;
+        this.cardAuthInfoService = cardAuthInfoService;
     }
 
     @Override
@@ -43,20 +45,13 @@ public class CardAuthServiceImpl implements CardAuthService {
         CardEntity card = optionalCardEntity.get();
         boolean correctPassword;
         if (card.getAuthMethod() == CardAuthMethod.PIN) {
-            correctPassword = PasswordHashUtils.validatePBKDF2HashPassword(card.getPin(), cardAuthRequest.getCardNumber());
+            correctPassword = PasswordHashUtils.validateMD5PasswordHash(card.getPin(), cardAuthRequest.getCode());
         } else {
-            correctPassword = PasswordHashUtils.validatePBKDF2HashPassword(card.getFingerprint(), cardAuthRequest.getCardNumber());
+            correctPassword = PasswordHashUtils.validateMD5PasswordHash(card.getFingerprint(), cardAuthRequest.getCode());
         }
 
-        card.getAuthInfo().setLastAuthAttemptDate(LocalDate.now());
         if (!correctPassword) {
-            int failedAttempts = card.getAuthInfo().getFailedAttempts();
-            if (failedAttempts < 3) {
-                card.getAuthInfo().setFailedAttempts(failedAttempts + 1);
-            }
-            if (failedAttempts == 2) {
-                card.getAuthInfo().setBlocked(true);
-            }
+            cardAuthInfoService.increaseFailedAttempts(card);
             logger.warn("Password is incorrect");
             throw new BankException("Password is incorrect");
         }

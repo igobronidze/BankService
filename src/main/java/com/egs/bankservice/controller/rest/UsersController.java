@@ -27,8 +27,8 @@ public class UsersController {
     }
 
     @PostMapping("add")
-    public void addUser(@RequestBody UserAddRequest userAddRequest) {
-        usersService.addUser(userAddRequest);
+    public long addUser(@RequestBody UserAddRequest userAddRequest) {
+        return usersService.addUser(userAddRequest);
     }
 
     @GetMapping("get/{id}")

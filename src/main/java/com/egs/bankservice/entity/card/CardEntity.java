@@ -33,18 +33,18 @@ public class CardEntity {
     @Column(length = 20, nullable = false)
     private CardAuthMethod authMethod;
 
-    @Column(length = 10)
+    @Column(length = 100)
     private String pin;
 
-    @Column(length = 20)
+    @Column(length = 100)
     private String fingerprint;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "card_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
 
     private long amount;
 
     @Embedded
-    private CardAuthInfo authInfo;
+    private CardAuthInfo authInfo = new CardAuthInfo();
 }

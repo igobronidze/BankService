@@ -49,7 +49,7 @@ public class CardsController {
     }
 
     @PostMapping("setAuthMethod")
-    public void setAuthMethodByCardNumber(SetAuthMethodRequest setAuthMethodRequest) {
+    public void setAuthMethodByCardNumber(@RequestBody SetAuthMethodRequest setAuthMethodRequest) {
         cardsService.setAuthMethodByCardNumber(setAuthMethodRequest);
     }
 }

@@ -7,16 +7,13 @@ public class PasswordHashUtilsTest {
 
     @Test
     public void testGetSha1EncodedString() {
-        Assertions.assertEquals("a94a8fe5ccb19ba61c4c0873d391e987982fbbd3".toUpperCase(),
-                PasswordHashUtils.getSha1EncodedString("test").toUpperCase());
+        Assertions.assertEquals("098f6bcd4621d373cade4e832627b4f6", PasswordHashUtils.getMD5PasswordHash("test"));
     }
 
     @Test
     public void testValidatePBKDF2HashPassword() {
-        Assertions.assertTrue(PasswordHashUtils.validatePBKDF2HashPassword(
-                "AQAAAAEAACcQAAAAEHb5EcbN831dFBfsdCeMDeu8U8DYUvdqSHv5fH+FxyxRoC9v1GaL1E3nvt66oJ8Vsw==", "password"));
+        Assertions.assertTrue(PasswordHashUtils.validateMD5PasswordHash("098f6bcd4621d373cade4e832627b4f6", "test"));
 
-        Assertions.assertFalse(PasswordHashUtils.validatePBKDF2HashPassword(
-                "AQAAAAEAACcQAAAAEHb5EcbN831dFBfsdCeMDeu8U8DYUvdqSHv5fH+FxyxRoC9v1GaL1E3nvt66oJ8Vsw==", "test"));
+        Assertions.assertFalse(PasswordHashUtils.validateMD5PasswordHash("098f6bcd4621d373cade4e832627b4r2", "test"));
     }
 }
