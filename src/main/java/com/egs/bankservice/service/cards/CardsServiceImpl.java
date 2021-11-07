@@ -101,29 +101,6 @@ public class CardsServiceImpl implements CardsService {
         card.setAuthMethod(cardAuthMethod);
     }
 
-    @Override
-    public long checkBalance(String cardNumber) {
-        return getCardByNumberIfCanFound(cardNumber).getAmount();
-    }
-
-    @Override
-    @Transactional
-    public void deposit(String cardNumber, long amount) {
-        CardEntity card = getCardByNumberIfCanFound(cardNumber);
-        card.setAmount(card.getAmount() + amount);
-    }
-
-    @Override
-    @Transactional
-    public void withdrawal(String cardNumber, long amount) {
-        CardEntity card = getCardByNumberIfCanFound(cardNumber);
-        if (card.getAmount() < amount) {
-            logger.warn("Card amount is less then withdrawal amount");
-            throw new BankException("Card amount is less then withdrawal amount");
-        }
-        card.setAmount(card.getAmount() - amount);
-    }
-
     private CardEntity getCardByNumberIfCanFound(String cardNumber) {
         Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(cardNumber);
         if (!optionalCardEntity.isPresent()) {
