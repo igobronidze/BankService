@@ -4,5 +4,5 @@ import com.egs.bankservice.entity.card.CardEntity;
 
 public interface CardAuthInfoService {
 
-    void increaseFailedAttempts(CardEntity card);
+    CardEntity increaseFailedAttempts(CardEntity card);
 }

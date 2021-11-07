@@ -20,7 +20,7 @@ public class CardAuthInfoServiceImpl implements CardAuthInfoService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void increaseFailedAttempts(CardEntity card) {
+    public CardEntity increaseFailedAttempts(CardEntity card) {
         int failedAttempts = card.getAuthInfo().getFailedAttempts();
         if (failedAttempts < 3) {
             card.getAuthInfo().setFailedAttempts(failedAttempts + 1);
@@ -28,6 +28,6 @@ public class CardAuthInfoServiceImpl implements CardAuthInfoService {
         if (failedAttempts == 2) {
             card.getAuthInfo().setBlocked(true);
         }
-        cardRepository.save(card);
+        return cardRepository.save(card);
     }
 }
