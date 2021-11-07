@@ -16,4 +16,6 @@ public interface CardsService {
     void deleteCard(long id);
 
     void setAuthMethodByCardNumber(SetAuthMethodRequest setAuthMethodRequest);
+
+    void unblockCard(String cardNumber);
 }

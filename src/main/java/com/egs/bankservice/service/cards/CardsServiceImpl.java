@@ -101,6 +101,14 @@ public class CardsServiceImpl implements CardsService {
         card.setAuthMethod(cardAuthMethod);
     }
 
+    @Override
+    @Transactional
+    public void unblockCard(String cardNumber) {
+        CardEntity card = getCardByNumberIfCanFound(cardNumber);
+        card.getAuthInfo().setBlocked(false);
+        card.getAuthInfo().setFailedAttempts(0);
+    }
+
     private CardEntity getCardByNumberIfCanFound(String cardNumber) {
         Optional<CardEntity> optionalCardEntity = cardRepository.getCardEntityByCardNumber(cardNumber);
         if (!optionalCardEntity.isPresent()) {

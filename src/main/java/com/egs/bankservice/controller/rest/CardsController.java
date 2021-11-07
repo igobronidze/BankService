@@ -52,4 +52,9 @@ public class CardsController {
     public void setAuthMethodByCardNumber(@RequestBody SetAuthMethodRequest setAuthMethodRequest) {
         cardsService.setAuthMethodByCardNumber(setAuthMethodRequest);
     }
+
+    @PostMapping("unblock")
+    public void unblockCard(@RequestParam(value = "cardNumber") String cardNumber) {
+        cardsService.unblockCard(cardNumber);
+    }
 }
