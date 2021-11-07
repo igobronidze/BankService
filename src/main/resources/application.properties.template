@@ -1,8 +1,8 @@
 server.port=8081
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/bank
-spring.datasource.username=postgres
-spring.datasource.password=sa
+spring.datasource.url=jdbc:postgresql://localhost:5432/XXX
+spring.datasource.username=XXX
+spring.datasource.password=XXX
 spring.jpa.show-sql=true
 
 ## Hibernate Properties
